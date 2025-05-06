@@ -4,11 +4,11 @@ A simple yet powerful AI chat application that I built to interact with OpenAI's
 
 ## Features
 
-- 🎨 Clean and modern user interface
-- 💬 Real-time AI responses using GPT-3.5
-- ⚡ Fast and responsive design
-- 🔄 Loading states and error handling
-- 📱 Mobile-friendly layout
+-  Clean and modern user interface
+-  Real-time AI responses using GPT-3.5
+-  Fast and responsive design
+-  Loading states and error handling
+-  Mobile-friendly layout
 
 ## Tech Stack
 
@@ -49,11 +49,3 @@ The application uses Flask to serve a web interface where users can input their 
 - [ ] Add user authentication
 - [ ] Support for file uploads
 - [ ] Add voice input/output
-
-## License
-
-This project is open source and available under the MIT License.
-
-## Contact
-
-Feel free to reach out if you have any questions or suggestions for improvements! 
