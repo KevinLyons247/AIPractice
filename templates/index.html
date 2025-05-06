@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .chat-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: auto;
+        }
+        .assistant-message {
+            background-color: #f5f5f5;
+            margin-right: auto;
+        }
+        .message-time {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .input-area {
+            margin: 20px 0;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 16px;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.clear {
+            background-color: #f44336;
+        }
+        button.clear:hover {
+            background-color: #da190b;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI Chat Assistant</h1>
+        <div class="chat-container" id="chatContainer">
+            {% for message in conversation %}
+            <div class="message {{ message.role }}-message">
+                <div class="message-content">{{ message.content }}</div>
+                <div class="message-time">{{ message.timestamp }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="input-area">
+            <textarea id="userInput" placeholder="Enter your message here..."></textarea>
+        </div>
+        <div class="button-container">
+            <button onclick="getResponse()">Send Message</button>
+            <button class="clear" onclick="clearHistory()">Clear History</button>
+        </div>
+        <div class="loading" id="loading">Thinking...</div>
+    </div>
+
+    <script>
+        function scrollToBottom() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addMessage(content, role, timestamp) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}-message`;
+            messageDiv.innerHTML = `
+                <div class="message-content">${content}</div>
+                <div class="message-time">${timestamp}</div>
+            `;
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        async function getResponse() {
+            const userInput = document.getElementById('userInput');
+            const loadingDiv = document.getElementById('loading');
+
+            if (!userInput.value.trim()) {
+                alert('Please enter some text first!');
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+
+            try {
+                const response = await fetch('/get_response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: userInput.value })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Clear the input
+                    userInput.value = '';
+                    
+                    // Update the chat container with the full conversation
+                    const chatContainer = document.getElementById('chatContainer');
+                    chatContainer.innerHTML = '';
+                    data.conversation.forEach(msg => {
+                        addMessage(msg.content, msg.role, msg.timestamp);
+                    });
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        async function clearHistory() {
+            try {
+                const response = await fetch('/clear_history', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    const chatContainer = document.getElementById('chatContainer');
+                    chatContainer.innerHTML = '';
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // Add enter key support
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                getResponse();
+            }
+        });
+
+        // Scroll to bottom on page load
+        window.onload = scrollToBottom;
+    </script>
+</body>
+</html> 
