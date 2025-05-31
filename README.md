@@ -42,10 +42,4 @@ A simple yet powerful AI chat application that I built to interact with OpenAI's
 
 The application uses Flask to serve a web interface where users can input their messages. When a message is submitted, it's sent to the OpenAI API using GPT-3.5-turbo model, which processes the input and returns a response. The response is then displayed to the user in real-time.
 
-## Future Improvements
 
-- [ ] Add conversation history
-- [ ] Implement different AI models
-- [ ] Add user authentication
-- [ ] Support for file uploads
-- [ ] Add voice input/output
